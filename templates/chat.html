@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}AI Chat Analyst — Smart People Analytics{% endblock %}
+{% block page_title %}AI Chat Analyst{% endblock %}
+{% block page_subtitle %}Analisis Percakapan Berbasis Data Penghitungan Orang & Tool Calling{% endblock %}
+
+{% block content %}
+<div class="chat-page-layout">
+  <!-- Left Session Sidebar -->
+  <aside class="chat-sidebar">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+      <span style="font-weight: 700; font-size: 0.92rem; color: var(--text-main);">Sesi Analisis</span>
+      <button class="btn btn-primary btn-sm" id="btn-new-chat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Sesi Baru
+      </button>
+    </div>
+
+    <!-- Sessions list -->
+    <div class="session-list" id="chat-session-list">
+      <!-- Session items will be dynamically injected here -->
+    </div>
+
+    <div style="padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 0.74rem; color: var(--text-dim); text-align: center;">
+      Jawaban AI diverifikasi oleh fungsi analitik SQLite backend
+    </div>
+  </aside>
+
+  <!-- Right Chat Interactive Area -->
+  <section class="chat-main-container">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-agent-info">
+        <div class="agent-avatar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM4.93 10.93a2 2 0 0 1 2.83 0l1.41 1.41a2 2 0 0 1-2.83 2.83l-1.41-1.41a2 2 0 0 1 0-2.83zM16.24 7.76a2 2 0 0 1 2.83 0l1.41 1.41a2 2 0 0 1-2.83 2.83l-1.41-1.41a2 2 0 0 1 0-2.83z"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="7" cy="18" r="1"/><circle cx="17" cy="18" r="1"/></svg>
+        </div>
+        <div>
+          <div style="font-weight: 700; font-size: 0.98rem; display: flex; align-items: center; gap: 8px;">
+            <span>AI People Analytics Agent</span>
+            <span class="badge-tag badge-in" style="font-size: 0.68rem; padding: 2px 6px;">Function Calling</span>
+          </div>
+          <div style="font-size: 0.76rem; color: var(--text-muted);" id="chat-active-session-title">
+            Percakapan Baru
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary btn-sm" id="btn-clear-chat" title="Bersihkan Percakapan Saat Ini">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          Hapus Sesi
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Messages Window -->
+    <div class="chat-messages" id="chat-messages-container">
+      <!-- Default Welcome Message -->
+      <div class="chat-message assistant">
+        <div class="msg-avatar">AI</div>
+        <div class="msg-bubble">
+          <p style="font-weight: 700; margin-bottom: 6px; color: var(--accent-cyan);">Halo Fajar! 👋</p>
+          <p style="margin-bottom: 10px;">
+            Saya adalah <strong>AI Chat Analyst</strong> untuk sistem <em>Smart People Analytics</em>. Saya dapat menganalisis data pergerakan orang masuk (IN), keluar (OUT), jam sibuk, perbandingan antarhari, dan estimasi okupansi ruangan.
+          </p>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">
+            Silakan ketik pertanyaan Anda atau pilih salah satu contoh pertanyaan di bawah ini untuk memulai:
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggested Question Chips Bar -->
+    <div class="prompt-chips-container">
+      <button class="prompt-chip" data-prompt="Berapa jumlah orang yang masuk hari ini?">
+        📥 Jumlah IN hari ini?
+      </button>
+      <button class="prompt-chip" data-prompt="Jam berapa paling ramai hari ini?">
+        ⏰ Jam paling ramai?
+      </button>
+      <button class="prompt-chip" data-prompt="Bandingkan jumlah IN hari ini dan kemarin.">
+        ⚖️ Bandingkan hari ini vs kemarin
+      </button>
+      <button class="prompt-chip" data-prompt="Berapa selisih jumlah orang masuk dan keluar?">
+        📊 Selisih IN & OUT
+      </button>
+      <button class="prompt-chip" data-prompt="Berapa persen perubahan jumlah pengunjung dibanding kemarin?">
+        📈 Persen perubahan pengunjung
+      </button>
+      <button class="prompt-chip" data-prompt="Berapa estimasi orang di dalam area saat ini?">
+        🏢 Estimasi okupansi saat ini
+      </button>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="chat-input-bar">
+      <input type="text" id="chat-input-text" class="chat-input" placeholder="Tanyakan seputar statistik orang masuk, keluar, jam ramai, atau perbandingan..." autocomplete="off">
+      <button class="btn btn-primary" id="btn-send-message">
+        <span id="btn-send-text">Kirim</span>
+        <svg id="btn-send-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Smart People Analytics — AI Chat Analyst{% endblock %}</title>
+  <meta name="description" content="Sistem analitik cerdas pergerakan orang dan pemantauan okupansi berbasis AI dan Computer Vision untuk Tugas Akhir / Kapita Selekta Fajar.">
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-container">
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">PeopleAnalytics</div>
+          <div class="brand-subtitle">
+            <span>AI Chat & CV Monitor</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard.dashboard_view') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}" id="nav-dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9"></rect>
+            <rect x="14" y="3" width="7" height="5"></rect>
+            <rect x="14" y="12" width="7" height="9"></rect>
+            <rect x="3" y="16" width="7" height="5"></rect>
+          </svg>
+          <span>Dashboard Analitik</span>
+        </a>
+
+        <a href="{{ url_for('chat.chat_view') }}" class="nav-link {% if active_page == 'chat' %}active{% endif %}" id="nav-chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <circle cx="9" cy="10" r="1"></circle>
+            <circle cx="12" cy="10" r="1"></circle>
+            <circle cx="15" cy="10" r="1"></circle>
+          </svg>
+          <span>AI Chat Analyst</span>
+        </a>
+
+        <a href="{{ url_for('events.history_view') }}" class="nav-link {% if active_page == 'history' %}active{% endif %}" id="nav-history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Riwayat Data (IN/OUT)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status-pill">
+          <span class="pulse-dot"></span>
+          <span>Sistem Aktif (Data Simulasi)</span>
+        </div>
+        <div style="margin-top: 10px; font-size: 0.72rem; color: var(--text-dim); text-align: center;">
+          TA / Kapita Selekta • Fajar
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      <header class="top-navbar">
+        <div class="page-title-group">
+          <h1>{% block page_title %}Dashboard Analitik{% endblock %}</h1>
+          <p>{% block page_subtitle %}Pemantauan Arus Pengunjung & Rekapitulasi Kejadian{% endblock %}</p>
+        </div>
+
+        <div class="navbar-actions">
+          <span class="badge-tag badge-simulated" title="Sumber data saat ini">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            SIMULATED DATA
+          </span>
+          
+          <button class="btn btn-secondary btn-sm" id="btn-open-sim-modal" title="Simulasikan Kejadian Langsung">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Simulasi Cepat
+          </button>
+
+          <button class="btn btn-secondary btn-sm" id="btn-open-settings-modal" title="Konfigurasi AI Provider">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Pengaturan AI
+          </button>
+        </div>
+      </header>
+
+      <main class="content-body">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <!-- Global Quick Simulation Modal -->
+  <div class="modal-overlay" id="sim-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">Simulasi Kejadian Orang Masuk / Keluar</h3>
+        <button class="modal-close-btn" onclick="closeSimModal()">&times;</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+        Suntikkan kejadian secara langsung ke database SQLite untuk menguji pergerakan live data pada Dashboard dan AI Analyst.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-success" style="flex: 1;" onclick="triggerLiveEvent('IN')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+            + 1 Orang Masuk (IN)
+          </button>
+          <button class="btn btn-danger" style="flex: 1;" onclick="triggerLiveEvent('OUT')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 7l-9.2 9.2M7 7v10h10"/></svg>
+            + 1 Orang Keluar (OUT)
+          </button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 6px 0;">
+
+        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <div style="font-weight: 700; font-size: 0.88rem; margin-bottom: 6px;">Regenerasi Dataset Simulasi (14 Hari)</div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
+            Menghasilkan ulang seluruh dataset 14 hari dengan kurva aktivitas normal kampus/gedung.
+          </p>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" onclick="regenerateDataset(14, false)">Tambah 14 Hari</button>
+            <button class="btn btn-primary btn-sm" onclick="regenerateDataset(14, true)">Reset & Buat Baru</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global AI Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">Konfigurasi AI Chat Analyst</h3>
+        <button class="modal-close-btn" onclick="closeSettingsModal()">&times;</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        Pilih mesin kecerdasan buatan untuk menjawab pertanyaan data. Built-in Engine bekerja 100% offline tanpa kuota!
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label class="filter-label" style="display: block; margin-bottom: 6px;">Provider AI</label>
+          <select id="setting-provider" class="select-input" style="width: 100%;">
+            <option value="builtin">Built-in Deterministic Analyst (Rekomendasi - Cepat & Pasti Tepat)</option>
+            <option value="gemini">Google Gemini (Function Calling via API)</option>
+            <option value="openai">OpenAI GPT-4o-mini (Function Calling via API)</option>
+          </select>
+        </div>
+
+        <div id="api-key-group" style="display: none;">
+          <label class="filter-label" style="display: block; margin-bottom: 6px;">API Key</label>
+          <input type="password" id="setting-api-key" class="text-input" style="width: 100%;" placeholder="Masukkan API Key (tersimpan di browser session)">
+        </div>
+
+        <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
+          <button class="btn btn-secondary btn-sm" onclick="closeSettingsModal()">Tutup</button>
+          <button class="btn btn-primary btn-sm" onclick="saveAISettings()">Simpan Pengaturan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global JavaScript Helpers -->
+  <script>
+    function openSimModal() { document.getElementById('sim-modal').classList.add('active'); }
+    function closeSimModal() { document.getElementById('sim-modal').classList.remove('active'); }
+    function openSettingsModal() { document.getElementById('settings-modal').classList.add('active'); }
+    function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
+
+    document.getElementById('btn-open-sim-modal')?.addEventListener('click', openSimModal);
+    document.getElementById('btn-open-settings-modal')?.addEventListener('click', openSettingsModal);
+
+    const providerSelect = document.getElementById('setting-provider');
+    const keyGroup = document.getElementById('api-key-group');
+    if (providerSelect) {
+      providerSelect.addEventListener('change', () => {
+        keyGroup.style.display = providerSelect.value === 'builtin' ? 'none' : 'block';
+      });
+      // Load stored provider
+      const savedProvider = localStorage.getItem('spa_ai_provider') || 'builtin';
+      providerSelect.value = savedProvider;
+      keyGroup.style.display = savedProvider === 'builtin' ? 'none' : 'block';
+      if (localStorage.getItem('spa_ai_key')) {
+        document.getElementById('setting-api-key').value = localStorage.getItem('spa_ai_key');
+      }
+    }
+
+    function saveAISettings() {
+      const p = providerSelect.value;
+      const k = document.getElementById('setting-api-key').value.trim();
+      localStorage.setItem('spa_ai_provider', p);
+      if (k) localStorage.setItem('spa_ai_key', k);
+      closeSettingsModal();
+      alert(`Pengaturan AI disimpan: ${p.toUpperCase()}`);
+    }
+
+    async function triggerLiveEvent(direction) {
+      try {
+        const res = await fetch('/api/events/simulate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({action: 'single', direction: direction})
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          // Notify and reload dashboard data if on dashboard
+          if (window.loadDashboardData) {
+            window.loadDashboardData();
+          } else if (window.loadHistoryData) {
+            window.loadHistoryData();
+          }
+          closeSimModal();
+          alert(`Berhasil mencatat 1 orang ${direction}!`);
+        }
+      } catch (err) {
+        alert('Gagal menyuntikkan kejadian: ' + err.message);
+      }
+    }
+
+    async function regenerateDataset(days, clearExisting) {
+      if (!confirm(`Apakah Anda yakin ingin menghasilkan data simulasi ${days} hari?`)) return;
+      try {
+        const res = await fetch('/api/events/simulate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({action: 'generate', days: days, clear_existing: clearExisting})
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          alert(data.message);
+          closeSimModal();
+          window.location.reload();
+        }
+      } catch (err) {
+        alert('Gagal menghasilkan data: ' + err.message);
+      }
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

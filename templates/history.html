@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Riwayat Data Kejadian — Smart People Analytics{% endblock %}
+{% block page_title %}Riwayat Data Kejadian (IN / OUT){% endblock %}
+{% block page_subtitle %}Audit Trail Log Seluruh Peristiwa Line Crossing yang Tercatat di Database{% endblock %}
+
+{% block content %}
+<!-- Filters Bar -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <div>
+      <span class="filter-label">Tanggal Awal:</span>
+      <input type="date" id="filter-start-date" class="date-input" style="margin-left: 6px;">
+    </div>
+    <div>
+      <span class="filter-label">Tanggal Akhir:</span>
+      <input type="date" id="filter-end-date" class="date-input" style="margin-left: 6px;">
+    </div>
+    <div>
+      <span class="filter-label">Arah:</span>
+      <select id="filter-direction" class="select-input" style="margin-left: 6px;">
+        <option value="">Semua Arah</option>
+        <option value="IN">Hanya IN (Masuk)</option>
+        <option value="OUT">Hanya OUT (Keluar)</option>
+      </select>
+    </div>
+    <div>
+      <span class="filter-label">Sumber:</span>
+      <select id="filter-source" class="select-input" style="margin-left: 6px;">
+        <option value="">Semua Sumber</option>
+        <option value="SIMULATED">SIMULATED</option>
+        <option value="YOLO">YOLO</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <button class="btn btn-secondary btn-sm" id="btn-reset-filters">
+      Reset Filter
+    </button>
+    <button class="btn btn-primary btn-sm" id="btn-export-csv">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Ekspor CSV
+    </button>
+  </div>
+</div>
+
+<!-- Table Card -->
+<div class="card" style="padding: 16px 20px;">
+  <div class="card-header" style="margin-bottom: 8px;">
+    <div>
+      <h2 class="card-title" style="font-size: 0.96rem;">Log Kejadian Terdata</h2>
+      <p class="card-subtitle" id="table-record-summary">Menampilkan 0 dari 0 kejadian</p>
+    </div>
+    <div>
+      <label class="filter-label" style="font-size: 0.78rem;">Baris per halaman: </label>
+      <select id="filter-page-size" class="select-input" style="padding: 4px 10px; font-size: 0.78rem;">
+        <option value="25" selected>25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="data-table" id="events-data-table">
+      <thead>
+        <tr>
+          <th style="width: 70px;">ID</th>
+          <th>Waktu Kejadian</th>
+          <th>Arah</th>
+          <th>Track ID</th>
+          <th>Confidence</th>
+          <th>Sumber Data</th>
+          <th>Kamera</th>
+        </tr>
+      </thead>
+      <tbody id="table-events-body">
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--text-dim); padding: 30px;">
+            <span class="spinner" style="margin-right: 8px;"></span> Memuat data kejadian dari database...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-bar">
+    <div id="pagination-info">Halaman 1 dari 1</div>
+    <div class="pagination-controls">
+      <button class="btn btn-secondary btn-sm" id="btn-page-prev" disabled>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Sebelumnya
+      </button>
+      <button class="btn btn-secondary btn-sm" id="btn-page-next" disabled>
+        Selanjutnya
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}
